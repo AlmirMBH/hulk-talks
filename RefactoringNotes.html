@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Refactoring</title>
+</head>
+    <body>
+        <p> BAD SMELLS IN CODE</p>
+        Catalogue of refactorings (first lecture):
+        Extract function 106,
+        Encapsulate variable 132,
+        Introduce parameter object 140,
+        Combine functions into class 144,
+        Combine functions into transform 149,
+        Add the names of refactorings for the following numbers: 223, 240, 252, 306, 314, 319, 324, 331, 350
+
+        <p>Extract function (106)</p>
+        MOTIVATION: If you have to spend effort looking at a fragment of code and figuring out what it is doing, then you should extract it into a function
+        and name the function after the “what.” Then, when you read it again, the purpose of the function leaps right out at you, and most of the time you
+        will not need to care about how the function fulfills its purpose.
+        MECHANICS: If the code I want to extract is very simple, such as a single function call, I still extract it if the name of the new function will
+        reveal the intent of the code in a better way. If I can’t come up with a more meaningful name, that Is a sign that I should not extract the code.
+        1) Create a new function, and name it after the intent of the function
+        2) Copy the extracted code from the source function into the new target function.
+        3) Scan the extracted code for variables that need to be passed as parameters. If a variable is only used inside the extracted, move its declaration
+        into the extracted code. If too many parameters need to be passed, avoid such refactoring or consider value objects.
+        4) Replace the extracted code in the source function with a call to the target function.
+        5) Test
+        6) Look for other code that is the same or similar to the code just extracted, and consider using the new function instead of the 'inline' code.
+
+        <p>FORMAT OF REFACTORING<p>
+        NAME: I begin with a name. The name is important to building a vocabulary of refactorings. This is the name I use elsewhere in the book. Refactorings often
+        go by different names now, so I also list any aliases that seem to be common.
+        SKETCH: I follow the name with a short sketch of the refactoring. This helps you find a refactoring more quickly.
+        MOTIVATION: The motivation describes why the refactoring should be done and describes circumstances in which it should not be done.
+        MECHANICS: The mechanics are a concise, step-by-step description of how to carry out the refactoring.
+        EXAMPLES: The examples show a very simple use of the refactoring to illustrate how it works.
+
+        <p>WISDOM (add pages 1-85)</p>
+        WHEN TO REFACTOR
+        By now you have a good idea of how refactoring works. But just because you know how does not mean you know when. Deciding when to start refactoring—and
+        when to stop—is just as important to refactoring as knowing how to operate the mechanics of it.
+        In our experience, no set of metrics rivals informed human intuition. What we will do is give you indications that there is trouble that can be solved
+        by a refactoring. You will have to develop your own sense of how many instance variables or how many lines of code in a method are too many.
+        ***If you have to remember your code, it is probably not good code. Good code is readable and understandable.
+        CODE QUALITY
+        Well-written and structured code is read like a book, from left to right and from top to bottom. For example, if you have a top level method that
+        invokes 5 other methods, order the 5 methods in the order they are called.
+        COMMENTS
+        ***When you feel the need to write a comment, first try to refactor the code so that any comment becomes superfluous. A good time to use a comment is when
+        you do not know what to do. In addition to describing what is going on, comments can also explain why you did something. Remember, you are not writing
+        comments only to your future self but to other developers as well.
+        TESTING
+        Like most aspects of programming, testing is an iterative activity. Unless you are either very skilled or very lucky, you won’t get your tests right the
+        first time. Do not let the fear that testing can’t catch all bugs stop you from writing tests that catch most bugs. It is better to write and run incomplete tests
+        than not to run complete tests. Testing is now increasingly a first-class concern of any decent software developer. Architectures often are, rightly, judged on their
+        testability.
+    </body>
+</html>
