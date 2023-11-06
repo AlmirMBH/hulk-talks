@@ -20,24 +20,53 @@ class AccountBalance extends Model
         'user_id'
     ];
 
-    public $balanceBreakingEncapsulation;
-    private float $balance;
 
-    public function __construct()
+    /**
+     * AccountBalance constructor prevents the database seeding. Comment the code below to seed the database.
+     */
+    public function __construct(
+        public float $balanceBreakingEncapsulation = 0,
+        private float $balance = 0,
+        private readonly float $readonlyBalance = 0,
+    )
     {
         parent::__construct();
-        $this->balanceBreakingEncapsulation = 0;
-        $this->balance = 0;
     }
 
-    // Incorrect method for updating the balance
-    public function updateBalance($amount): void
+
+    public function updateBalanceBreakingEncapsulation($amount): float|int
     {
-        $this->balance += $amount;
+        return $this->balanceBreakingEncapsulation += $amount;
+    }
+
+    public function getBreakingEncapsulationBalance(): float|int
+    {
+        return $this->balanceBreakingEncapsulation;
+    }
+
+    public function updateBalance($balance): AccountBalance
+    {
+        return new AccountBalance(
+            balance: $this->balance + $balance
+        );
     }
 
     public function getBalance(): float|int
     {
         return $this->balance;
     }
+
+    public function updateReadonlyBalance($balance): AccountBalance
+    {
+        return new AccountBalance(
+            readonlyBalance: $this->readonlyBalance + $balance
+        );
+    }
+
+    public function getReadonlyBalance(): float|int
+    {
+        return $this->readonlyBalance;
+    }
+
+
 }

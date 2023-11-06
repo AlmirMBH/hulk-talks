@@ -18,10 +18,11 @@ class AccountBalanceFactory extends Factory
     public function definition(): array
     {
         return [
-            'account_id' => $this->faker->randomNumber(),
-            'balance' => $this->faker->randomNumber(),
-            'currency' => $this->faker->word(),
-            'user_id' => $this->faker->randomNumber()
+            'account_id' => $this->faker->unique()->numberBetween(1, 1000),
+            'balance' => $this->faker->randomFloat(2, 0, 10000),
+            'currency' => $this->faker->currencyCode(),
+            'user_id' => $this->faker->unique()->numberBetween(1, 1000),
         ];
     }
+
 }

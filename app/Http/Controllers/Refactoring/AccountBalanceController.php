@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Refactoring;
 
 use App\Http\Controllers\Controller;
 use App\Models\Refactoring\AccountBalance;
+use App\Services\Refactoring\AccountBalanceService;
+use ReflectionClass;
 
 /**
  * MUTABLE DATA
@@ -26,23 +28,79 @@ use App\Models\Refactoring\AccountBalance;
  */
 class AccountBalanceController extends Controller
 {
+    public function __construct(private readonly AccountBalanceService $accountBalanceService)
+    {
+    }
+
     public function updateBalanceViolateEncapsulation($amount): array
     {
-        $accountBalance = new AccountBalance();
-        $accountBalance->balanceBreakingEncapsulation += $amount;
+        $accountBalance = new AccountBalance(
+            balanceBreakingEncapsulation: 250
+        );
+
+        $updatedAccountBalance = $accountBalance->balanceBreakingEncapsulation += $amount;
 
         return [
-            'amount' => $accountBalance->balanceBreakingEncapsulation
+            'originalBalance' => $accountBalance->getBreakingEncapsulationBalance(),
+            'amountToAddToOriginal' => $amount,
+            'updatedBalance' => $updatedAccountBalance
+        ];
+    }
+
+    public function updateBalanceViolateEncapsulationWithSetter($amount): array
+    {
+        $accountBalance = new AccountBalance(
+            balanceBreakingEncapsulation: 300
+        );
+
+        $updatedAccountBalance = $accountBalance->updateBalanceBreakingEncapsulation($amount);
+
+        return [
+            'originalBalance' => $accountBalance->getBreakingEncapsulationBalance(),
+            'amountToAddToOriginal' => $amount,
+            'updatedBalance' => $updatedAccountBalance
         ];
     }
 
     public function updateBalanceDontViolateEncapsulation($amount): array
     {
-        $accountBalance = new AccountBalance();
-        $accountBalance->updateBalance($amount);
+        $accountBalance = new AccountBalance(
+            balance:350
+        );
+
+        $updatedBalance = $accountBalance->updateBalance($amount);
+
+        // Use reflection to hack the value; could private property and final class prevent this?
+        $reflectionClass = new ReflectionClass($updatedBalance);
+        $balanceProperty = $reflectionClass->getProperty('balance');
+        $balanceProperty->setValue($updatedBalance, 10000);
 
         return [
-            'amount' => $accountBalance->getBalance()
+            'originalBalance' => $accountBalance->getBalance(),
+            'amountToAddToOriginal' => $amount,
+            'updatedBalance' => $updatedBalance->getBalance(),
+            'hackedBalance' => $balanceProperty->getValue($updatedBalance)
+        ];
+    }
+
+    public function updateReadonlyBalanceDontViolateEncapsulation($amount): array
+    {
+        $accountReadonlyBalance = new AccountBalance(
+            readonlyBalance:350
+        );
+
+        $updatedBalance = $accountReadonlyBalance->updateReadonlyBalance($amount);
+
+        // Use reflection to hack the value; could readonly, private property and final class prevent this?
+        $reflectionClass = new ReflectionClass($updatedBalance);
+        $balanceProperty = $reflectionClass->getProperty('readonlyBalance');
+        $balanceProperty->setValue($updatedBalance, 10000);
+
+        return [
+            'originalBalance' => $accountReadonlyBalance->getReadonlyBalance(),
+            'amountToAddToOriginal' => $amount,
+            'updatedBalance' => $updatedBalance->getReadonlyBalance(),
+            'hackedBalance' => $balanceProperty->getValue($updatedBalance)
         ];
     }
 }

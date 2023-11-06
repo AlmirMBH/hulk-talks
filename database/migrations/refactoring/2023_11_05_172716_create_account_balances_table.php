@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('account_balances', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('account_id');
-            $table->decimal('balance', 10, 2);
-            $table->string('currency', 3);
-            $table->unsignedBigInteger('user_id');
+            $table->integer('account_id')->nullable();
+            $table->decimal('balance', 10, 2)->default(0);
+            $table->string('currency', 3)->default('USD');
+            $table->integer('user_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

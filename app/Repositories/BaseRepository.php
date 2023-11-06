@@ -15,7 +15,7 @@ class BaseRepository
         return $this->model->create($data);
     }
 
-    public function update(array $data, int $id): Model
+    public function update(int $id, array $data): Model
     {
         $model = $this->model->findOrFail($id);
         $model->update($data);

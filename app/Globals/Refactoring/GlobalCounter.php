@@ -4,7 +4,7 @@ namespace App\Globals\Refactoring;
 
 class GlobalCounter
 {
-    private static int $countLoggedUsers = 0; // This is the encapsulated global data
+    private static int $countLoggedUsers = 0; // This is the encapsulated global data; set it via constructor???
 
     public static function increment(): void
     {

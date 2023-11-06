@@ -20,7 +20,9 @@ use Illuminate\Support\Facades\Route;
 Route::controller(AccountBalanceController::class)->group(function () {
     Route::prefix('/mutable-data')->group(function () {
         Route::get('/violate-encapsulation/{amount}', 'updateBalanceViolateEncapsulation')->name('updateBalanceViolateEncapsulation');
+        Route::get('/violate-encapsulation-setter/{amount}', 'updateBalanceViolateEncapsulationWithSetter')->name('updateBalanceViolateEncapsulationSetter');
         Route::get('/dont-violate-encapsulation/{amount}', 'updateBalanceDontViolateEncapsulation')->name('updateBalanceDontViolateEncapsulation');
+        Route::get('/dont-violate-encapsulation-readonly/{amount}', 'updateReadonlyBalanceDontViolateEncapsulation')->name('updateReadonlyBalanceDontViolateEncapsulation');
     });
 });
 
