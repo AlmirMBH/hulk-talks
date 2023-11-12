@@ -31,6 +31,7 @@ class DuplicateCodeController extends Controller
 
     /**
      * ORIGINAL METHODS
+     * Explain what the problem is and why it is a problem.
      */
     public function printInvoice(int $invoiceId): array
     {
@@ -101,6 +102,7 @@ class DuplicateCodeController extends Controller
 
     /**
      * TOP-LEVEL METHODS (REFACTORED)
+     * Add mechanics and motivation here (explain what is done and why); specify codes and their name.
      */
     public function printInvoiceRefactored(int $invoiceId): array
     {
