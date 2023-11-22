@@ -4,8 +4,6 @@ namespace App\Helpers;
 
 use App\Models\Refactoring\Banner;
 use App\Models\Refactoring\Invoice;
-use App\ValueObjects\Refactoring\InvoiceValueObject;
-use Illuminate\Support\Arr;
 
 trait LongParameterListTrait
 {
@@ -51,14 +49,19 @@ trait LongParameterListTrait
         return round($outstandingAmount, 2);
     }
 
-    private function validateOutstanding(array|InvoiceValueObject $data, ?bool $printOutstandingAmount = false): array
+    private function validateOutstanding(mixed $data, ?bool $printOutstandingAmount = false): array
     {
-        $outstandingValue = is_object($data) ? $data->getOutstandingAmount() : Arr::get($data, 7) ?? Arr::get($data, 4);
+        $outstandingAmount = [];
+
+        $outstandingValue = match(true) {
+            is_object($data) => $data->getOutstandingAmount(),
+            default => $data,
+        };
 
         if ($printOutstandingAmount && $outstandingValue > 0) {
-            return ['outstanding' => $outstandingValue];
+            $outstandingAmount = ['outstanding' => $outstandingValue];
         }
 
-        return [];
+        return $outstandingAmount;
     }
 }

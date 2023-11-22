@@ -2,47 +2,38 @@
 
 namespace App\Http\Controllers\Refactoring;
 
-use App\Helpers\InvoiceHelperTrait;
 use App\Http\Controllers\Controller;
 use App\Models\Refactoring\Banner;
 use App\Models\Refactoring\Invoice;
-use App\Services\Refactoring\BannerService;
-use App\Services\Refactoring\InvoiceService;
 
 /**
  * DUPLICATE CODE
- * If you see the same code structure in more than one place, you can be sure that your program will be better if you find a way to unify them. Duplication
- * means that every time you read these copies, you need to read them carefully to see if there’s any difference. If you need to change the duplicated
- * code, you have to find and catch each duplication. The simplest duplicated code problem is when you have the same expression in two methods of the same
- * class. Then all you have to do is Extract Function (106) and invoke the code from both places. If you have code that’s similar, but not quite identical,
- * see if you can use Slide Statements (223) to arrange the code so the similar items are all together for easy extraction. If the duplicate fragments are
- * in subclasses of a common base class, you can use Pull Up Method (350) to avoid calling one from another.
  */
 class DuplicateCodeController extends Controller
 {
-    use InvoiceHelperTrait;
-
-    public function __construct(
-        private readonly InvoiceService $invoiceService,
-        private readonly BannerService $bannerService
-    )
-    {
-    }
-
     /**
      * ORIGINAL METHODS
-     * Explain what the problem is and why it is a problem.
+     * What issues could the 2 methods below cause in the future?
+     */
+
+    /**
+     * FOOD FOR THOUGHT / QUESTIONS
+     * What if we need to add more data to the invoice?
+     * What if we need to add more data to the banner?
+     * What if we need to add more data to the response?
+     *
+     * What can we do to improve the code?
      */
     public function printInvoice(int $invoiceId): array
     {
+        // Banner
         $banner = Banner::find($invoiceId);
-
         $title = $banner->title;
         $description = $banner->description;
         $template = $banner->template;
 
+        // Invoice
         $invoice = Invoice::find($invoiceId);
-
         $customer = $invoice->customer;
         $invoiceNumber = $invoice->invoice_number;
         $totalAmount = $invoice->total_amount;
@@ -58,25 +49,26 @@ class DuplicateCodeController extends Controller
             'totalAmount' => $totalAmount,
             'paidInstallmentsAmount' => $paidInstallmentsAmount,
             'invoiceDate' => $invoiceDate,
-            ];
+        ];
     }
 
     public function printOutstandingInvoice(int $invoiceId): array
     {
+        // Banner
         $banner = Banner::find($invoiceId);
-
         $title = $banner->title;
         $description = $banner->description;
         $template = $banner->template;
 
+        // Invoice
         $invoice = Invoice::find($invoiceId);
-
         $customer = $invoice->customer;
         $invoiceNumber = $invoice->invoice_number;
         $totalAmount = $invoice->total_amount;
         $paidInstallmentsAmount = $invoice->paid_installments_amount;
         $invoiceDate = $invoice->created_at;
 
+        // Outstanding
         $outstanding = ($invoice->total_amount - $invoice->paid_installments_amount) / 100 - ($invoice->discount ?? 0)
             - (($invoice->paid_installments_amount / 100) > $invoice->min_bonus_amount ? $invoice->bonus_plus : $invoice->basic_bonus);
 
@@ -101,48 +93,54 @@ class DuplicateCodeController extends Controller
 
 
     /**
-     * TOP-LEVEL METHODS (REFACTORED)
-     * Add mechanics and motivation here (explain what is done and why); specify codes and their name.
+     * TOP-LEVEL METHODS (REFACTORED) - STEP I
+     * Extract duplicate code into separate methods
      */
     public function printInvoiceRefactored(int $invoiceId): array
     {
-        return $this->formatOutputData(
-            data: array_merge(
-                $this->getBanner($invoiceId),
-                $this->getInvoiceDetails($invoiceId))
-        );
+        // Banner, Invoice & Outstanding
+        $banner = $this->getBanner($invoiceId);
+        $invoice = $this->getInvoiceDetails($invoiceId);
+        $outstandingAmount = $invoice[4] > 0 ? ['outstanding' => $invoice[4]] : [];
+
+        // Output
+        return [
+            'title' => $banner[0],
+            'description' => $banner[1],
+            'template' => $banner[2],
+            'customer' => $invoice[0],
+            'invoiceNumber' => $invoice[1],
+            'totalAmount' => $invoice[2],
+            'paidInstallmentsAmount' => $invoice[3],
+            ...$outstandingAmount,
+            'invoiceDate' => $invoice[5],
+        ];
     }
 
     public function printOutstandingInvoiceRefactored(int $invoiceId): array
     {
-        return $this->formatOutputData(
-            data: array_merge(
-                $this->getBanner($invoiceId),
-                $this->getInvoiceDetails(
-                    invoiceId: $invoiceId,
-                    outstandingAmount: $this->calculateOutstandingInvoiceAmount($invoiceId))
-            ));
+        // Banner, Invoice & Outstanding
+        $banner = $this->getBanner($invoiceId);
+        $invoice = $this->getInvoiceDetails($invoiceId, $this->calculateOutstandingInvoiceAmount($invoiceId));
+        $outstandingAmount = $invoice[4] > 0 ? ['outstanding' => $invoice[4]] : [];
+
+        // Output
+        return [
+            'title' => $banner[0],
+            'description' => $banner[1],
+            'template' => $banner[2],
+            'customer' => $invoice[0],
+            'invoiceNumber' => $invoice[1],
+            'totalAmount' => $invoice[2],
+            'paidInstallmentsAmount' => $invoice[3],
+            ...$outstandingAmount,
+            'invoiceDate' => $invoice[5],
+        ];
     }
 
 
-    /**
-     * FINAL METHOD (REFACTORED) - STEP I
-     */
-    public function printInvoiceMerged(int $invoiceId): array
-    {
-        return $this->formatOutputData(
-            data: array_merge(
-                $this->getBanner($invoiceId),
-                $this->getInvoiceDetails(
-                    invoiceId: $invoiceId,
-                    outstandingAmount: $this->calculateOutstandingInvoiceAmount($invoiceId))
-            ));
-    }
 
-
-    /**
-     * SUB-FUNCTIONS / HELPER-FUNCTIONS (HELPER)
-     */
+    // Banner
     private function getBanner(int $invoiceId): array
     {
         $banner = Banner::find($invoiceId);
@@ -154,6 +152,7 @@ class DuplicateCodeController extends Controller
         ];
     }
 
+    // Invoice
     private function getInvoiceDetails(int $invoiceId, mixed $outstandingAmount = 0): array
     {
         $invoice = Invoice::find($invoiceId);
@@ -168,6 +167,7 @@ class DuplicateCodeController extends Controller
         ];
     }
 
+    // Outstanding
     private function calculateOutstandingInvoiceAmount(int $invoiceId): int|float
     {
         $invoice = Invoice::find($invoiceId);
@@ -184,6 +184,26 @@ class DuplicateCodeController extends Controller
         return round($outstandingAmount, 2);
     }
 
+
+
+    /**
+     * TOP-LEVEL METHOD(S) (REFACTORED) - STEP II
+     * Merge invoice and outstanding invoice methods into one method
+     * Format response in a separate method
+     * Check if the invoice is outstanding in a separate method
+     */
+    public function printInvoiceMerged(int $invoiceId): array
+    {
+        return $this->formatOutputData(
+            data: array_merge(
+                $this->getBanner($invoiceId),
+                $this->getInvoiceDetails(
+                    invoiceId: $invoiceId,
+                    outstandingAmount: $this->calculateOutstandingInvoiceAmount($invoiceId))
+            ));
+    }
+
+    // Output
     private function formatOutputData(array $data): array
     {
         return [
@@ -194,12 +214,13 @@ class DuplicateCodeController extends Controller
             'invoiceNumber' => $data[4],
             'totalAmount' => $data[5],
             'paidInstallmentsAmount' => $data[6],
-            ...$this->validateOutstanding($data),
+            ...$this->getOutstandingAmount($data),
             'invoiceDate' => $data[8],
         ];
     }
 
-    private function validateOutstanding(array $data): array
+    // Outstanding (validation)
+    private function getOutstandingAmount(array $data): array
     {
         $formattedData = [];
         $outstandingValue = $data[7];

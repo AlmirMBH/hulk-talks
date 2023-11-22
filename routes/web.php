@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Refactoring\AccountBalanceController;
+use App\Http\Controllers\Refactoring\MutableDataController;
 use App\Http\Controllers\Refactoring\DuplicateCodeController;
 use App\Http\Controllers\Refactoring\DuplicateCodeFinalController;
 use App\Http\Controllers\Refactoring\GlobalDataController;
@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::controller(AccountBalanceController::class)->group(function () {
+Route::controller(MutableDataController::class)->group(function () {
     Route::prefix('/mutable-data')->group(function () {
         Route::get('/violate-encapsulation/{amount}', 'updateBalanceViolateEncapsulation')->name('updateBalanceViolateEncapsulation');
         Route::get('/violate-encapsulation-setter/{amount}', 'updateBalanceViolateEncapsulationWithSetter')->name('updateBalanceViolateEncapsulationSetter');
@@ -46,7 +46,7 @@ Route::controller(DuplicateCodeFinalController::class)->group(function () {
 
 Route::controller(GlobalDataController::class)->group(function () {
     Route::prefix('/global-data')->group(function () {
-        Route::get('/get-count', 'getCount')->name('getCount');
+        Route::get('/get-count/{addOneToCount?}', 'getCount')->name('getCount');
     });
 });
 

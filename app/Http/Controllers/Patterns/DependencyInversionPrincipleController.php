@@ -63,22 +63,22 @@ class LightSwitcher {
         }
 }
 
-// Usage
-$firstFloorLivingRoom = new FirstFloorRoom("Living Room");
-$switch = new LightSwitcher($firstFloorLivingRoom);
-$switch->operate();
+    // Usage
+    $firstFloorLivingRoom = new FirstFloorRoom("Living Room");
+    $switch = new LightSwitcher($firstFloorLivingRoom);
+    $switch->operate();
 
-$firstFloorKitchen = new FirstFloorRoom("Kitchen");
-$switch = new LightSwitcher($firstFloorKitchen);
-$switch->operate();
+    $firstFloorKitchen = new FirstFloorRoom("Kitchen");
+    $switch = new LightSwitcher($firstFloorKitchen);
+    $switch->operate();
 
 
-$secondFloorLivingRoom = new SecondFloorRoom("Living Room");
-$switch = new LightSwitcher($secondFloorLivingRoom);
-$switch->operate();
+    $secondFloorLivingRoom = new SecondFloorRoom("Living Room");
+    $switch = new LightSwitcher($secondFloorLivingRoom);
+    $switch->operate();
 
-$secondFloorKitchen = new SecondFloorRoom("Kitchen");
-$switch = new LightSwitcher($secondFloorKitchen);
-$switch->operate();
+    $secondFloorKitchen = new SecondFloorRoom("Kitchen");
+    $switch = new LightSwitcher($secondFloorKitchen);
+    $switch->operate();
 
 

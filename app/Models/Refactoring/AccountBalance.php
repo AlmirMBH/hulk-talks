@@ -34,6 +34,9 @@ class AccountBalance extends Model
     }
 
 
+    /**
+     * ENCAPSULATION VIOLATED
+     */
     public function updateBalanceBreakingEncapsulation($amount): float|int
     {
         return $this->balanceBreakingEncapsulation += $amount;
@@ -44,6 +47,10 @@ class AccountBalance extends Model
         return $this->balanceBreakingEncapsulation;
     }
 
+
+    /**
+     * ENCAPSULATION VIOLATED (REFLECTION)
+     */
     public function updateBalance($balance): AccountBalance
     {
         return new AccountBalance(
@@ -56,6 +63,10 @@ class AccountBalance extends Model
         return $this->balance;
     }
 
+
+    /**
+     * ENCAPSULATION NOT VIOLATED (REFLECTION PREVENTED WITH READONLY PROPERTY)
+     */
     public function updateReadonlyBalance($balance): AccountBalance
     {
         return new AccountBalance(

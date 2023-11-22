@@ -8,14 +8,6 @@ use App\ValueObjects\Refactoring\InvoiceValueObject;
 
 /**
  * LONG PARAMETER LIST
- * In our early programming days, we were taught to pass in as parameters everything needed by a function. This was understandable because the alternative
- * was global data, and global data quickly becomes evil. But long parameter lists are often confusing in their own right. If you can obtain one parameter
- * by asking another parameter for it, you can use Replace Parameter with Query (324) to remove the second parameter. Rather than pulling lots of data out
- * of an existing data structure, you can use Preserve Whole Object (319) to pass the original data structure instead. If several parameters always fit
- * together, combine them with Introduce Parameter Object (140). If a parameter is used as a flag to dispatch different behavior, use Remove Flag Argument
- * (314). Classes are a great way to reduce parameter list sizes. They are particularly useful when multiple functions share several parameter values. Then,
- * you can use Combine Functions into Class (144) to capture those common values as fields. If we put on our functional programming hats, we’d say this
- * creates a set of partially applied functions.
  */
 class LongParameterListController extends Controller
 {
@@ -23,44 +15,87 @@ class LongParameterListController extends Controller
 
 
     /**
-     * Parameters
+     * SEND DATA AS PRIMITIVE DATA TYPES (MULTIPLE PARAMETERS)
+     * (pros: data is validated, cons: can be hard to read and debug)
      */
     public function printInvoice(int $invoiceId, int $printOutstandingAmount): array
     {
         return $this->formatOutputData(
-            banner: $this->getBanner($invoiceId),
-            invoiceDetails: $this->getInvoiceDetails(
-                invoiceId: $invoiceId,
-                outstandingAmount: $this->calculateOutstandingInvoiceAmount($invoiceId)
-            ),
-            printOutstandingAmount: (bool) $printOutstandingAmount
+            $this->getBanner($invoiceId),
+            $this->getInvoiceDetails($invoiceId, $this->calculateOutstandingInvoiceAmount($invoiceId)),
+            (bool) $printOutstandingAmount
          );
     }
 
+    private function formatOutputData(array $banner, array $invoiceDetails, ?bool $printOutstandingAmount = false): array
+    {
+        return [
+            'title' => $banner[0],
+            'description' => $banner[1],
+            'template' => $banner[2],
+            'customer' => $invoiceDetails[0],
+            'invoiceNumber' => $invoiceDetails[1],
+            'totalAmount' => $invoiceDetails[2],
+            'paidInstallmentsAmount' => $invoiceDetails[3],
+            ...$this->validateOutstanding($invoiceDetails[4], $printOutstandingAmount),
+            'invoiceDate' => $invoiceDetails[5]
+        ];
+    }
+
+
+
     /**
-     * Array
+     * SEND DATA AS AN ARRAY
+     * (pros: easy to read, cons: data is not validated)
      */
     public function printInvoiceArray(int $invoiceId, int $printOutstandingAmount): array
     {
         $data = [
-            $this->getBanner($invoiceId),
-            $this->getInvoiceDetails($invoiceId, $this->calculateOutstandingInvoiceAmount($invoiceId)),
+            ...$this->getBanner($invoiceId),
+            ...$this->getInvoiceDetails($invoiceId, $this->calculateOutstandingInvoiceAmount($invoiceId)),
             (bool) $printOutstandingAmount
         ];
 
         return $this->formatOutputDataUsingArray($data);
     }
 
+    private function formatOutputDataUsingArray(array $data): array
+    {
+        return [
+            'title' => $data[0],
+            'description' => $data[1],
+            'template' => $data[2],
+            'customer' => $data[3],
+            'invoiceNumber' => $data[4],
+            'totalAmount' => $data[5],
+            'paidInstallmentsAmount' => $data[6],
+            ...$this->validateOutstanding($data[7], $data[9]),
+            'invoiceDate' => $data[8],
+        ];
+    }
+
+
+
     /**
-     * Value object
+     * SEND DATA AS AN OBJECT
+     * (pros: easy to read (descriptive variables), named parameters, data is validated/encapsulated, cons: more code)
      */
     public function printInvoiceValueObject(int $invoiceId, int $printOutstandingAmount): array
     {
-        [$bannerTitle, $bannerDescription, $bannerTemplate]
-            = $this->getBanner($invoiceId);
+        [
+            $bannerTitle,
+            $bannerDescription,
+            $bannerTemplate
+        ] = $this->getBanner($invoiceId);
 
-        [$customer, $invoiceNumber, $totalAmount, $invoicePaidInstallmentsAmount, $outstandingAmount, $invoiceDate]
-            = $this->getInvoiceDetails($invoiceId, $this->calculateOutstandingInvoiceAmount($invoiceId));
+        [
+            $customer,
+            $invoiceNumber,
+            $totalAmount,
+            $invoicePaidInstallmentsAmount,
+            $outstandingAmount,
+            $invoiceDate
+        ] = $this->getInvoiceDetails($invoiceId, $this->calculateOutstandingInvoiceAmount($invoiceId));
 
         $data = new InvoiceValueObject(
             customer: $customer,
@@ -76,44 +111,6 @@ class LongParameterListController extends Controller
         );
 
         return $this->formatOutputDataUsingValueObject($data);
-    }
-
-
-    /**
-     * Methods below should be in the trait; left here for the presentation purposes
-     */
-    private function formatOutputData(array $banner, array $invoiceDetails, ?bool $printOutstandingAmount = false): array
-    {
-        $data = array_merge($banner, $invoiceDetails);
-
-        return [
-            'title' => $data[0],
-            'description' => $data[1],
-            'template' => $data[2],
-            'customer' => $data[3],
-            'invoiceNumber' => $data[4],
-            'totalAmount' => $data[5],
-            'paidInstallmentsAmount' => $data[6],
-            ...$this->validateOutstanding($data, $printOutstandingAmount),
-            'invoiceDate' => $data[8]
-        ];
-    }
-
-    private function formatOutputDataUsingArray(array $data): array
-    {
-        [$banner, $invoiceDetails, $printOutstandingAmount] = $data;
-
-        return [
-            'title' => $banner[0],
-            'description' => $banner[1],
-            'template' => $banner[2],
-            'customer' => $invoiceDetails[0],
-            'invoiceNumber' => $invoiceDetails[1],
-            'totalAmount' => $invoiceDetails[2],
-            'paidInstallmentsAmount' => $invoiceDetails[3],
-            ...$this->validateOutstanding($invoiceDetails, $printOutstandingAmount),
-            'invoiceDate' => $invoiceDetails[5],
-        ];
     }
 
     private function formatOutputDataUsingValueObject(InvoiceValueObject $invoiceValueObject): array
