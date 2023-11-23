@@ -98,10 +98,9 @@ class DuplicateCodeController extends Controller
      */
     public function printInvoiceRefactored(int $invoiceId): array
     {
-        // Banner, Invoice & Outstanding
+        // Banner & Invoice
         $banner = $this->getBanner($invoiceId);
         $invoice = $this->getInvoiceDetails($invoiceId);
-        $outstandingAmount = $invoice[4] > 0 ? ['outstanding' => $invoice[4]] : [];
 
         // Output
         return [
@@ -112,7 +111,6 @@ class DuplicateCodeController extends Controller
             'invoiceNumber' => $invoice[1],
             'totalAmount' => $invoice[2],
             'paidInstallmentsAmount' => $invoice[3],
-            ...$outstandingAmount,
             'invoiceDate' => $invoice[5],
         ];
     }

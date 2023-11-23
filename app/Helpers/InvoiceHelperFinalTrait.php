@@ -25,8 +25,9 @@ trait InvoiceHelperFinalTrait
         return round($outstandingAmount, 2);
     }
 
+
     // Output
-    private function formatOutputData(Model $banner,Model $invoice,int|float $outstandingAmount): array
+    private function formatOutputData(Model $banner, Model $invoice, int|float $outstandingAmount): array
     {
         return [
             'title' => $banner->title,
@@ -36,13 +37,14 @@ trait InvoiceHelperFinalTrait
             'invoiceNumber' => $invoice->invoice_number,
             'totalAmount' => $invoice->total_amount,
             'paidInstallmentsAmount' => $invoice->paid_installments_amount,
-            ...$this->validateOutstanding($outstandingAmount),
+            ...$this->getOutstandingAmount($outstandingAmount),
             'invoiceDate' => $invoice->created_at,
         ];
     }
 
+
     // Outstanding validation
-    private function validateOutstanding(int|float $outstandingAmount): array
+    private function getOutstandingAmount(int|float $outstandingAmount): array
     {
         $formattedData = [];
 

@@ -46,14 +46,14 @@ class LongParameterListController extends Controller
 
     /**
      * SEND DATA AS AN ARRAY
-     * (pros: easy to read, cons: data is not validated)
+     * (pros: easy to read, cons: data is not validated, easy to make mistakes and cause bugs)
      */
-    public function printInvoiceArray(int $invoiceId, int $printOutstandingAmount): array
+    public function printInvoiceArray(int $invoiceId, bool $printOutstandingAmount): array
     {
         $data = [
             ...$this->getBanner($invoiceId),
             ...$this->getInvoiceDetails($invoiceId, $this->calculateOutstandingInvoiceAmount($invoiceId)),
-            (bool) $printOutstandingAmount
+            $printOutstandingAmount
         ];
 
         return $this->formatOutputDataUsingArray($data);
@@ -80,7 +80,7 @@ class LongParameterListController extends Controller
      * SEND DATA AS AN OBJECT
      * (pros: easy to read (descriptive variables), named parameters, data is validated/encapsulated, cons: more code)
      */
-    public function printInvoiceValueObject(int $invoiceId, int $printOutstandingAmount): array
+    public function printInvoiceValueObject(int $invoiceId, bool $printOutstandingAmount): array
     {
         [
             $bannerTitle,
@@ -103,7 +103,7 @@ class LongParameterListController extends Controller
             totalAmount: $totalAmount,
             invoicePaidInstallmentsAmount: $invoicePaidInstallmentsAmount,
             invoiceDate: $invoiceDate,
-            printOutstandingAmount: (bool) $printOutstandingAmount,
+            printOutstandingAmount: $printOutstandingAmount,
             outstandingAmount: $outstandingAmount,
             bannerTitle: $bannerTitle,
             bannerDescription: $bannerDescription,

@@ -14,8 +14,7 @@ class DuplicateCodeFinalController extends Controller
     public function __construct(
         private readonly InvoiceService $invoiceService,
         private readonly BannerService $bannerService
-    )
-    {
+    ){
     }
 
     /**
@@ -33,13 +32,11 @@ class DuplicateCodeFinalController extends Controller
     public function printInvoiceFinal(int $invoiceId): array
     {
         $invoice = $this->invoiceService->findById($invoiceId);
-        $banner = $this->bannerService->findById($invoiceId);
-        $outstandingAmount = $this->calculateOutstandingInvoiceAmount($invoice);
 
         return $this->formatOutputData(
-            banner: $banner,
+            banner: $this->bannerService->findById($invoiceId),
             invoice: $invoice,
-            outstandingAmount: $outstandingAmount
+            outstandingAmount: $this->calculateOutstandingInvoiceAmount($invoice)
         );
     }
 }
